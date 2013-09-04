@@ -1,0 +1,27 @@
+\section{Compressed Histogram of Gradients descriptor}
+
+[TODO: add references (also a good opportunity to check the phrasing is not unintentionally the same).]
+
+A feature descriptor is computed for each point of interest in the image. The local image area around the point of interest -- called a patch -- is processed at different scales. It is rotated in the direction of the most pronounced image gradient, the mean and the standard deviation of the pixel values are normalized and Gaussian smoothing is applied.
+
+[TODO: investigate modelling of illumination changes using a linear (affine) transformation of the pixel intensities.]
+
+The Compressed Histogram of Gradients (CHoG) descriptor is obtained from an extracted feature in the following way: the normalized patch is separated into spatial bins, then in each bin a histogram of the joint gradient is computed and also divided into bins. Finally, the probability distributions of the histograms are quantized and compressed.
+
+\subsection{Spatial binning}
+
+The descriptor uses overlapping spatial binning, that is, pixels contribute to more than one bin. The spatial bins are arranged according to a DAISY configuration. [TODO: investigate DAISY and expand with explanation.] [TODO: illustration.] The closer a pixel is to the centroid of a bin, the less it contributes to neighbouring spatial bins. This is reflected by assigning a Gaussian weight to each bin, the sum of all weights being 1.
+
+\subsection{Gradient histogram binning}
+
+The image gradients with respect to x and y are computed with [-1 0 -1] as filter. The joint gradient ($d_x$, $d_y$) is put into bins by means of vector quantization. Statistical analysis of a large data set suggests that bins should be positioned such that the bin centers are at even distances on an ellipse centered at (0,0). There is also a bin with center (0,0) which is the most significant point in the joint gradient distribution [TODO: reference]. [TODO: illustration] [Reference] evaluates and discusses the performance of the different bin layouts.
+
+\subsection{Quantization and compression}
+
+So far we have an uncompressed histogram of gradients. The next step is to compress the descriptor while aiming for fast and accurate matching.
+
+The original paper on CHoG used Huffman tree coding for quantization [TODO: reference]. The authors have since improved the descriptor by switching to type coding which has better time complexity [TODO: reference]. Entropy Constrained Vector Quantization is optimal in terms of rate and distortion, but unpractical in the context of mobile search: it is more complex and requires storing codebooks on the device. [TODO: reference]
+
+[TODO: expand about type quantization]
+
+A method called compressed domain matching [TODO: reference] is used to achieve fast matching. The distances between different distributions are computed and stored in a lookup table. The quantized histogram indexes serves as indexes to this lookup table. Thus, no decompression is required in order to compare two descriptors.
