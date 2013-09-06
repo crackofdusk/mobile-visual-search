@@ -22,7 +22,35 @@ Here $\alpha$ and $\beta$ are the orders of differentiation with respect to $x$ 
 
 \subsection{Blob detection with the determinant of the Hessian}
 
-In \cite{Lindeberg93detectingsalient} Lindeberg describes a method for detecting blob-like structures from the scale space representation of an image. He informally defines a blobs at a defined scale as ``smooth regions which are brighter or darker than the background and stand out from their surroundings''. These regions typically appear at multiple scales. If they can be uniquely linked accross the scales they form a scale space blob \cite{Lindeberg93detectingsalient}. At scale $t$, (TODO: continue)
+In \cite{Lindeberg93detectingsalient} Lindeberg describes a method for detecting blob-like structures from the scale space representation of an image. He informally defines a blobs at a defined scale as ``smooth regions which are brighter or darker than the background and stand out from their surroundings''. These regions typically appear at multiple scales. If they can be uniquely linked accross the scales they form a scale space blob \cite{Lindeberg93detectingsalient}. The extrema at scale $t$ give the locations of blobs.
+
+One method to find the extrema in a multivariate function $f$ is to find all solutions $x_0, ... x_i, ... x_n$ to $\vec\nabla f = \vec0$ and then compute the determinant of the Hessian matrix evaluated at each point $x_i$. If the determinant is positive, then $x_i$ is a local minimum, if it is negative, $x_i$ is a local maximum. A determinant of 0 indicates a saddle point at $x_i$.
+
+In the case of blob detection, the analyzed function is the scale space representation of the image. As such, the equations are as follows \cite{Lindeberg93detectingsalient}.
+
+A critical point $x_0 \in \mathbb{R}$ at scale $t_0 \in \mathbb{R}_+$ satisfies:
+
+\begin{equation}
+    \nabla L\rvert_{(x_0; t_0)} =
+    \begin{bmatrix}
+        L_{x} \\ L_{y}
+    \end{bmatrix} \Bigg\rvert_{(x_0; t_0)} =
+    \begin{bmatrix}
+        0 \\ 0
+    \end{bmatrix}
+\end{equation}
+
+The determinant of the Hessian matrix is:
+
+\begin{equation}
+    det(H(\mathbf{x},t)) =
+    \begin{vmatrix}
+        L_{xx}(\mathbf{x},t) & L_{xy}(\mathbf{x},t) \\
+        L_{xy}(\mathbf{x},t) & L_{yy}(\mathbf{x},t)
+    \end{vmatrix}
+    =
+    L_{xx}(\mathbf{x},t) L_{yy}(\mathbf{x},t) - (L_{xy}(\mathbf{x},t))^2
+\end{equation}
 
 \subsection{Integral images}
 
