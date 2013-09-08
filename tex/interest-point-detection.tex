@@ -82,22 +82,38 @@ This assumes the coordinate system is as usually defined in computer graphics: t
     }
 \end{figure}
 
-Integral images make computing intensity sums with arbitrary rectangular areas in an image efficient. Figure~\ref{fig:integral_images} gives an example
+Integral images make computing intensity sums with arbitrary rectangular areas in an image efficient. Figure~\ref{fig:integral_images} gives an example.
 
-\subsection{Hessian blob detection using box filters and integral images}
+\subsection{Fast Hessian blob detection using box filters and integral images}
 
-Convolution with Gaussian derivatives is computationaly expensive. In \cite{Bay06surf:speeded} Bay et al. approximate the second order Gaussian derivatives with box filters. Because box filters are constitued of regions with a common weight, convolution can be expressed using the procomputed sums from the integral image.
+Convolution with Gaussian derivatives is computationaly expensive. In \cite{Bay06surf:speeded} Bay et al. approximate the second order Gaussian derivatives with box filters (see figure~\ref{fig:gaussian_derivatives}). Because box filters are constitued of regions with a common weight, convolution can be expressed using the procomputed sums from the integral image.
 
-The approximations of $L_{xx}$, $L_{yy}$, $L_{xy}$ are respectively denoted $D_{xx}$, $D_{yy}$, $D_{xy}$ and shown in figure (TODO: refernce figure) (TODO: include figure showing Gaussian derivatives Lxx, Lyy, Lxy and corresponding box filters Dxx, Dyy, Dxy)
+
+\begin{figure}
+    \centering
+    \includegraphics[height=0.3\textheight]{img/gaussian-kernel-derivatives}
+    \caption{
+        The top row shows the cropped second order derivatives of a Gaussian kernel with variance $\sigma^2=1.2$ (from left to right:
+        $\partial_{xx} g(x,y)$, $\partial_{yy} g(x,y)$, $\partial_{xy} g(x,y)$).
+        The bottom row shows the corresponding (9x9) box filter approximations.
+        \label{fig:gaussian_derivatives}
+    }
+\end{figure}
+
+The approximations of $L_{xx}$, $L_{yy}$, $L_{xy}$ are respectively denoted $D_{xx}$, $D_{yy}$, $D_{xy}$.
+
+
+
+(TODO: write about how filters grow)
 
 With $\mathbf{x} = (x,y)$
-\begin{displaymath}
+\begin{equation}
     H(\mathbf{x},t)_{approx} = 
     \begin{bmatrix}
         D_{xx}(\mathbf{x},t) & D_{xy}(\mathbf{x},t) \\
         D_{xy}(\mathbf{x},t) & D_{yy}(\mathbf{x},t)
     \end{bmatrix}
-\end{displaymath}
+\end{equation}
 
 Bay at al. balances the weight of the expressions in the determinant of this approximation as follows
 \begin{equation}
@@ -105,8 +121,18 @@ Bay at al. balances the weight of the expressions in the determinant of this app
 \end{equation}
 The weight $w$ is defined as 
 \begin{equation}
-w(t,s) = \frac{\|L_{xy}(t)\|_F \|D_{xx}(s)\|_F}{\|L_{xx}(t)\|_F \|D_{xy}(s)\|_F}
+w(t,s) = \frac{\left|L_{xy}(t)\right|_F \left|D_{xx}(s)\right|_F}{\left|L_{xx}(t)\right|_F \left|D_{xy}(s)\right|_F}
 \end{equation}
-where $t$ is the scale, $s$ is the filter size and $\|\|_F$ is the Frobenius norm, $\|A\|_F=\sqrt{\sum_{i=1}^m\sum_{j=1}^n |a_{ij}|^2}$.
-For instance, the weight for a 9x9 filter and a scale of 1.2 is $w(t=1.2, s=9) \simeq 0.9$
+where $t$ is the scale, $s$ is the filter size and $\left|\cdot\right|_F$ is the Frobenius norm, $\left|A\right|_F=\sqrt{\sum_{i=1}^m\sum_{j=1}^n |a_{ij}|^2}$.
+For instance, the weight for a 9x9 filter and a scale of 1.2 is $w(t=1.2, s=9) \simeq 0.9$.
+
+(TODO: write about octaves?)
+
+(TODO: write about finding the maximum determinant of hessian in a 3x3 neighbourhood)
+
+(TODO: write about interpolation)
+\cite{Brown02invariantfeatures}:
+
+\begin{equation}
+\end{equation}
 
