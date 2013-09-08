@@ -4,6 +4,7 @@
 In this section, the term \emph{training image} refers to the reference image to which a \emph{test image} can be compared. The training image is stored in the search database, whereas the test image is the image one is trying to match against the images in the database.
 
 \subsection{Scale invariance and scale space}
+\label{sec:scale_space}
 
 When identifying points of interest, or features, in the training image, it is important that those features can be detected even if the image is scaled. Indeed, the test image can have a different zoom level. Feature detection is thus done in scale space \cite{Lindeberg98featuredetection}. A two dimensional signal, such as an image, $f: \mathbb{R}^2 \to \mathbb{R}$, is represented in scale space $L: \mathbb{R}^2 \times \mathbb{R}_+ \to \mathbb{R}$ by
 \begin{equation}
@@ -20,7 +21,10 @@ Using the properties of convolution, one can compute the scale space derivative 
 \end{equation}
 Here $\alpha$ and $\beta$ are the orders of differentiation with respect to $x$ and $y$ respectively.
 
+Scale space is essentially a pyramid in which each level is a coarser version of the previous. The base of the pyramid is the original image. Each level above it is a smoothed than subsampled version of the previous level.
+
 \subsection{Blob detection with the determinant of the Hessian}
+\label{sec:blob_theory}
 
 In \cite{Lindeberg93detectingsalient} Lindeberg describes a method for detecting blob-like structures from the scale space representation of an image. He informally defines a blobs at a defined scale as ``smooth regions which are brighter or darker than the background and stand out from their surroundings''. These regions typically appear at multiple scales. If they can be uniquely linked accross the scales they form a scale space blob \cite{Lindeberg93detectingsalient}. The extrema at scale $t$ give the locations of blobs.
 
@@ -86,25 +90,22 @@ Integral images make computing intensity sums with arbitrary rectangular areas i
 
 \subsection{Fast Hessian blob detection using box filters and integral images}
 
-Convolution with Gaussian derivatives is computationaly expensive. In \cite{Bay06surf:speeded} Bay et al. approximate the second order Gaussian derivatives with box filters (see figure~\ref{fig:gaussian_derivatives}). Because box filters are constitued of regions with a common weight, convolution can be expressed using the procomputed sums from the integral image.
+Convolution with Gaussian derivatives is computationaly expensive. In \cite{Bay06surf} Bay et al.\ approximate the second order Gaussian derivatives with box filters (see figure~\ref{fig:gaussian_derivatives}). Because box filters are constitued of regions with a common weight, convolution can be expressed using the procomputed sums from the integral image.
 
 
 \begin{figure}
     \centering
     \includegraphics[height=0.3\textheight]{img/gaussian-kernel-derivatives}
     \caption{
-        The top row shows the cropped second order derivatives of a Gaussian kernel with variance $\sigma^2=1.2$ (from left to right:
-        $\partial_{xx} g(x,y)$, $\partial_{yy} g(x,y)$, $\partial_{xy} g(x,y)$).
+        The top row shows the cropped second order partial derivatives of a Gaussian kernel with variance $\sigma^2=1.2$ (from left to right:
+        $\frac{\partial ^2}{\partial x^2} g(x,y)$, $\frac{\partial ^2}{\partial y^2} g(x,y)$, $\frac{\partial ^2}{\partial x \partial y} g(x,y)$).
         The bottom row shows the corresponding (9x9) box filter approximations.
+        The areas in grey are equal to zero.
         \label{fig:gaussian_derivatives}
     }
 \end{figure}
 
 The approximations of $L_{xx}$, $L_{yy}$, $L_{xy}$ are respectively denoted $D_{xx}$, $D_{yy}$, $D_{xy}$.
-
-
-
-(TODO: write about how filters grow)
 
 With $\mathbf{x} = (x,y)$
 \begin{equation}
@@ -115,7 +116,7 @@ With $\mathbf{x} = (x,y)$
     \end{bmatrix}
 \end{equation}
 
-Bay at al. balances the weight of the expressions in the determinant of this approximation as follows
+Bay et al.\ balances the weight of the expressions in the determinant of this approximation as follows
 \begin{equation}
     det(H_{approx}) = D_{xx} D_{yy} - (w D_{xy})^2
 \end{equation}
@@ -126,13 +127,22 @@ w(t,s) = \frac{\left|L_{xy}(t)\right|_F \left|D_{xx}(s)\right|_F}{\left|L_{xx}(t
 where $t$ is the scale, $s$ is the filter size and $\left|\cdot\right|_F$ is the Frobenius norm, $\left|A\right|_F=\sqrt{\sum_{i=1}^m\sum_{j=1}^n |a_{ij}|^2}$.
 For instance, the weight for a 9x9 filter and a scale of 1.2 is $w(t=1.2, s=9) \simeq 0.9$.
 
-(TODO: write about octaves?)
+The nature of box filters and the use of integral images also changes how the pyramid mentioned in section~\ref{sec:scale_space} is built.
+Bay et al.\ \cite{Bay06surf} subdivide the scale space in a certain number of octaves (an octave is a doubling of scale) and each octave is subdivided in a number of scales. Instead of building levels iteratively based on lower levels, the filters are applied directly on the original image. Furthermore, instead of making the images smaller at greater levels of the pyramid, Bat et al.\ increase the filter size (9x9, 15x15, 21x21, 27x27, etc.). The growth of filters simulates the increase in the approximated Gaussian derivative parameter. To keep up with the doubling of scale between octaves, the gap between filter sizes also doubles (from 6 to 12 to 24 etc.).
 
-(TODO: write about finding the maximum determinant of hessian in a 3x3 neighbourhood)
+Finding the maximum of the determinant of the Hessian here is different than the approach suggested in section~\ref{sec:blob_theory}. A 3x3x3 neightbourhood is considered for each point, i.e.\ the determinant of the Hessian matrix at a location is compared to its 26 neighbours (8 from the current scale, 9 from the scale above and 9 from the scale below). The maxima reflect the uncorrected locations of the points of interest. \cite{Bay06surf} cites the need to adjust these location based on the difference of scale in the lower levels of the each octave.
 
-(TODO: write about interpolation)
-\cite{Brown02invariantfeatures}:
+Accuracy is improved through interpolation, using the procedure proposed by Brown et al.\ \cite{Brown02invariantfeatures}: with $\mathbf{x} = (x,y,t)^T$ the scale space coordinate of the interest point, fit a quadratic
 
 \begin{equation}
+    H(\mathbf{x}) = H + \frac{\partial H}{\partial \mathbf{x}}^T \mathbf{x} + \frac{1}{2} \mathbf{x}^T \frac{\partial^2 H}{\partial \mathbf{x}^2} \mathbf{x}
 \end{equation}
+
+The the new location is at the extremum of the quadratic:
+
+\begin{equation}
+    \mathbf{\hat{x}} = - \frac{\partial^2 H}{\partial \mathbf{x}^2}^{-1} \frac{\partial H}{\partial \mathbf{x}}
+\end{equation}
+
+
 
