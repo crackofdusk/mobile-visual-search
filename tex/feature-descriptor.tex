@@ -12,13 +12,35 @@ Chandrasekhar et al.\ \cite{chog2011} also apply Gaussian smoothing to the patch
 
 \subsection{Spatial binning}
 
-First of all, the patch is subdivided into cells arranged according to a DAISY configuration \cite{Tola08,best_daisy}. See figure... (TODO: include figure for illustration.)
+First of all, the patch is subdivided into cells arranged according to a DAISY configuration \cite{Tola08,best_daisy}. See figure~\ref{fig:daisy_regions} for an example with 9 spatial bins.
 
-The binning is overlapping, i.e.\ each pixel contributes to more than one bin.  The closer a pixel is to the centroid of a bin, the less it contributes to neighbouring spatial bins. This is reflected by assigning a Gaussian weight to each bin, the sum of all weights being 1.
+Overlapping bins are used to compensate for errors in the locations of the points of interest \cite{chog2011}. Soft assignment is used, i.e.\ each pixel contributes to more than one spatial bin. The closer a pixel is to the centroid of a bin, the less it contributes to neighbouring spatial bins. This is reflected by assigning a normalized Gaussian weight to each bin, the sum of all weights being 1. Chandrasekhar et al.\cite{chog2011} use $\sigma=d_{min}/3$ as a paramater to the Gaussian, where $d_{min}$ is the smallest distance between cell centroids in the DAISY configuration.
+
+\begin{figure}
+    \centering
+    \begin{tikzpicture}
+        \draw[darkgray] (0,0) circle (0.5);
+        \draw[darkgray] (0,0.8) circle (0.5);
+        \draw[darkgray] (0,-0.8) circle (0.5);
+        \draw[darkgray] (0.8,0) circle (0.5);
+        \draw[darkgray] (-0.8,0) circle (0.5);
+        \draw[darkgray] (0.6,0.6) circle (0.5);
+        \draw[darkgray] (-0.6,0.6) circle (0.5);
+        \draw[darkgray] (0.6,-0.6) circle (0.5);
+        \draw[darkgray] (-0.6,-0.6) circle (0.5);
+    \end{tikzpicture}
+    \caption{
+        An approximation of a DAISY-9 configuration. Contrary to the configuration in \cite{best_daisy} which features disjoint cells, the regions used in \cite{chog2011} overlap, as depicted here.
+        \label{fig:daisy_regions}
+    }
+\end{figure}
+
 
 \subsection{Gradient histogram binning}
 
-The image gradients with respect to x and y are computed with [-1 0 -1] as filter. The joint gradient ($d_x$, $d_y$) is put into bins by means of vector quantization. Statistical analysis of a large data set suggests that bins should be positioned such that the bin centers are at even distances on an ellipse centered at (0,0). There is also a bin with center (0,0) which is the most significant point in the joint gradient distribution [TODO: reference]. [TODO: illustration] [Reference] evaluates and discusses the performance of the different bin layouts.
+The image gradients with respect to $x$ and $y$ are computed with [-1 0 -1] as filter. The joint gradient ($d_x$, $d_y$) is put into bins by means of vector quantization. Different quantization configuration can be seen in figure~\ref{fig:voronoi_regions}. Chandrasekhar et al.\ \cite{chog2011} claim that statistical analysis of a large data set suggests bins should be positioned such that the bin centers are at even distances on an ellipse centered at $(0,0)$. Furthermore, there is a bin with center $(0,0)$ which is the most statistically significant point in the joint gradient distribution. As with spatial binning, the joint gradients are assigned to multiple bins with Gaussian weights. The Gaussian parameter is $\sigma = d_{min}/3$, where $d_{min}$ is the smallest distance between centroids.
+
+Chandrasekhar et al.\ also evaluate and discuss the performance of the different bin layouts. A larger number of quantization cells yields a higher precision. An evaluation of feature descriptors in a common framework \cite{chog2011} shows that the uncompressed histogram of gradients with a DAISY-9 spatial binning configuration and a VQ-5 gradient histogram binning configuration outperforms the popular SIFT descriptor \cite{Lowe04distinctiveimage}.
 
 \begin{figure}
     \centering
@@ -104,7 +126,7 @@ The image gradients with respect to x and y are computed with [-1 0 -1] as filte
         \draw (0,-2) node[below] {VQ-9};
     \end{tikzpicture}
     \caption{
-        Voronoi cells for the histogram quantization. The dots represent the cell centroids.
+        Voronoi cells for the histogram quantization. The dots represent the cell centroids. The naming comes from \cite{chog2011} and conveys the number of cells in each vector quantization configuration.
         \label{fig:voronoi_regions}
     }
 \end{figure}
@@ -114,7 +136,7 @@ The image gradients with respect to x and y are computed with [-1 0 -1] as filte
 
 So far we have an uncompressed histogram of gradients. The next step is to compress the descriptor while aiming for fast and accurate matching.
 
-The original paper on CHoG \cite{chog2009} used Huffman tree coding for quantization. The authors have since improved the descriptor by switching to type coding which has better time complexity \cite{chog2011}. Entropy Constrained Vector Quantization is optimal in terms of rate and distortion, but unpractical in the context of mobile search: it is more complex and requires storing codebooks on the device. \cite{chog2011}
+The original paper on CHoG \cite{chog2009} used Huffman tree coding for quantization. The authors have since improved the descriptor by switching to type coding which has better time complexity \cite{chog2011}. Entropy Constrained Vector Quantization is optimal in terms of rate and distortion, but unpractical in the context of mobile search: it is more complex and requires storing codebooks on the device \cite{chog2011}.
 
 \subsubsection{Latices}
 
