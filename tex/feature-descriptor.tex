@@ -26,6 +26,76 @@ So far we have an uncompressed histogram of gradients. The next step is to compr
 
 The original paper on CHoG \cite{chog2009} used Huffman tree coding for quantization. The authors have since improved the descriptor by switching to type coding which has better time complexity \cite{chog2011}. Entropy Constrained Vector Quantization is optimal in terms of rate and distortion, but unpractical in the context of mobile search: it is more complex and requires storing codebooks on the device. \cite{chog2011}
 
-[TODO: expand about type quantization]
+\subsubsection{Latices}
 
-A method called compressed domain matching [TODO: reference] is used to achieve fast matching. The distances between different distributions are computed and stored in a lookup table. The quantized histogram indexes serves as indexes to this lookup table. Thus, no decompression is required in order to compare two descriptors.
+\subsubsection{Type coding}
+\label{sec:type_coding}
+
+\subsubsection{Quantization}
+
+Chandrasekhar et al.\ \cite{chog2011} use the following algorithm to quantize a distribution $P$ to the nearest type in $Q_n$ ($Q_n$ is as described in section~\ref{sec:type_coding})
+\begin{enumerate}
+
+\item With $i=1,\ldots,m$, compute: \begin{displaymath}
+k_i^\prime = \lfloor np_i+\frac{1}{2} \rfloor,\quad n^\prime=\sum_i k_i^\prime
+\end{displaymath}
+
+\item \label{algo:step_sort} If $n^\prime = n$, the nearest type is given by the paramaters $k_i^\prime$. Return $k_i = k_i^\prime$. Otherwise, compute the errors
+\begin{displaymath}
+\delta_i = k_i^\prime - np_i
+\end{displaymath}
+ and sort them s.t.
+\begin{displaymath}
+-\frac{1}{2} \leq \delta_{j_1} \leq \delta_{j_2} \leq \cdots \leq \delta_{j_m} \leq \frac{1}{2}
+\end{displaymath}
+
+\item \label{algo:step_decrincr} Let $d = n^\prime - n$. If $d > 0$ then decrement $d$ values $k_i^\prime$ with largest errors.
+\[
+k_{j_i} = \begin{cases}
+k_{j_i}^\prime & j = i,\ldots,m-d-1, \\
+k_{j_i} & i=m-d,\ldots,m,
+\end{cases}
+\]
+otherwise, if $d < 0$ increment $\left|d\right|$ values $k_i^\prime$ with smallest errors
+\[
+k_{j_i} = \begin{cases}
+k_{j_i}^\prime + 1 & i = 1,\ldots,\left|d\right|, \\
+k_{j_i} & i=\left|d\right|+1,\ldots,m.
+\end{cases}
+\]
+
+\item Return $k_1,\ldots,k_m$.
+\end{enumerate}
+
+Because in step~\ref{algo:step_decrincr} only the $\left|d\right|$ smallest or largest elements are needed, a full sort of the errors $\delta_i$ in step~\ref{algo:step_sort} is unnecessary. Reznik et al.\ \cite{fastchog} show that $\left|d\right|$ is small in practice and propose to simply select the $\left|d\right|$ smallest/largest elements, thus reducing the overall complexity of the algorithm.
+
+Reznik et al.\ also add a bias to the reconstruction points:
+\begin{equation}
+    q_i^\prime = \frac{k_i + \beta}{n + \beta m}, \quad i = 1,\ldots,m.
+\end{equation}
+with the bias parameter $\beta = \beta_0\frac{n}{n_0}$ where $n_0$ is the total number of samples in the non-quantized histogram and $\beta_0 = \frac{1}{2}$ as used in the computation of the probabilities:
+\begin{equation}
+    p_i^\prime = \frac{k_{0,i} + \beta_0}{n_0 + \beta_0 m}, \quad i = 1,\ldots,m.
+\end{equation}
+
+\subsubsection{Encoding}
+
+The disired property of the encoding scheme is to eliminate the need of storing a codebook for encoding and decoding. Chandrasekhar et al.\ \cite{chog2011} use an enumeration method that allows the computation of index on the fly, based on the type parameters.
+
+The number of types in lattice $Q_n$ is given by the number partitions of $n$ into $m$ terms $k_1 + \cdots  + k_m = n$ \cite{chog2011}:
+\begin{equation}
+\left|Q_n\right| = {n+m-1 \choose m-1}
+\end{equation}
+
+Let $\xi(k_1, \ldots k_m)$ be the index of the type with parameters $k_1, \ldots, k_m$. A lexicographic enumeration of the types is:
+\begin{align*}
+&\xi(0,0,\ldots,0,n) = 1 \\
+&\xi(0,0,\ldots,1,n-1) = 2 \\
+&\ldots \\
+&\xi(n,0,\ldots,0,0) = {n+m-1 \choose m-1} - 1
+\end{align*}
+The generalized formula \cite{chog2011} is:
+\begin{equation}
+\xi(k_1, \ldots, k_m) = \sum_{j=1}^{m-2} \sum_{i=0}^{k_j - 1} {n-i-\sum_{l=1}^{j-1}k_l+m-j-1 \choose m-j-1} + k_{n-1}
+\end{equation}
+
