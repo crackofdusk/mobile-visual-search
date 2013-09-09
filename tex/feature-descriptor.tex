@@ -126,7 +126,7 @@ Chandrasekhar et al.\ also evaluate and discuss the performance of the different
         \draw (0,-2) node[below] {VQ-9};
     \end{tikzpicture}
     \caption{
-        Voronoi cells for the histogram quantization. The dots represent the cell centroids. The naming comes from \cite{chog2011} and conveys the number of cells in each vector quantization configuration.
+        Voronoi partitions for the histogram quantization. The dots represent the cell centroids. The lines delimiting the regions are formed by points at an equal distance from two neighbour centroids. In other words, any point with a cell is closer to the centroid of that cell than the other centroids. The naming (VQ-$K$, with $K=3,5,7,9$) comes from \cite{chog2011} and conveys the number of cells in each vector quantization configuration.
         \label{fig:voronoi_regions}
     }
 \end{figure}
@@ -139,6 +139,7 @@ So far we have an uncompressed histogram of gradients. The next step is to compr
 The original paper on CHoG \cite{chog2009} used Huffman tree coding for quantization. The authors have since improved the descriptor by switching to type coding which has better time complexity \cite{chog2011}. Entropy Constrained Vector Quantization is optimal in terms of rate and distortion, but unpractical in the context of mobile search: it is more complex and requires storing codebooks on the device \cite{chog2011}.
 
 \subsubsection{Lattices}
+\label{sec:lattices}
 
 An n-dimensional lattice $\Lambda$ is the set of vectors
 \begin{equation}
@@ -167,7 +168,7 @@ Chandrasekhar et al.\ \cite{chog2011} propose the following codebook:
     Q_n = \{ [q_1,\ldots,q_m] \in \mathbb{Q}^m | \forall i: q_i = \frac{k_i}{n}, k_i \geq 0, \sum_i k_i = n \}
 \end{equation}
 
-It is important to note that an element $q \in Q_n$ fits the definition of a type given in section~\ref{sec:types}.
+It is important to note that an element $q \in Q_n$ fits the definition of a type given in section~\ref{sec:types}. Furthermore, $Q_n$ is related to the concept of a$A_n$ lattice (see section~\ref{sec:lattices}). Therefore, in \cite{fastchog}, Reznik et al.\ refer to $q \in Q_n$ as a type and to $Q_n$ as a type lattice.
 
 Chandrasekhar et al.\ \cite{chog2011} use the following algorithm to quantize a distribution $P$ to the nearest type $q = [\frac{k_1}{n},\ldots,\frac{k_m}{n}]$ in $Q_n$:
 \begin{enumerate}
