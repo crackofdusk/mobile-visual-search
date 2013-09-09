@@ -1,16 +1,20 @@
 \section{Compressed Histogram of Gradients descriptor}
 
-[TODO: add references (also a good opportunity to check the phrasing is not unintentionally the same).]
+\subsection{Patch extraction and normalization}
 
-A feature descriptor is computed for each point of interest in the image. The local image area around the point of interest -- called a patch -- is processed at different scales. It is rotated in the direction of the most pronounced image gradient, the mean and the standard deviation of the pixel values are normalized and Gaussian smoothing is applied.
+Once points of interest have been selected at different scales, patches are formed. A patch is square area that has the point of interest at its center. The patch is at the same scale as the point of interest and its size depends on that scale \cite{Mikolajczyk2005PEL}. As is, this area of the image is susceptible to rotation and illumination changes. Therefore both the orientation and illumination are normalized.
 
-[TODO: investigate modelling of illumination changes using a linear (affine) transformation of the pixel intensities.]
+The orientation of the patch matches the direction of the most pronounced gradient in the neighbourhood of the interest point (The local gradients are sorted in a histogram, each bin containing a gradient angle weighted by the gradient magnitude. The dominant gradient is selected by taking the largest bin.) \cite{Lowe04distinctiveimage}.
 
-The Compressed Histogram of Gradients (CHoG) descriptor is obtained from an extracted feature in the following way: the normalized patch is separated into spatial bins, then in each bin a histogram of the joint gradient is computed and also divided into bins. Finally, the probability distributions of the histograms are quantized and compressed.
+The mean and standard deviation of the pixel values of the patch are normalized in order to compensate for affine transformations in illumination ($aI(x) + b$) \cite{Mikolajczyk2005PEL}. Non linear changes in illumination cannot be easily modeled and compensated.
+
+Chandrasekhar et al.\ \cite{chog2011} also apply Gaussian smoothing to the patch (with $\sigma = 2.7$ pixels).
 
 \subsection{Spatial binning}
 
-The descriptor uses overlapping spatial binning, that is, pixels contribute to more than one bin. The spatial bins are arranged according to a DAISY configuration. [TODO: investigate DAISY and expand with explanation.] [TODO: illustration.] The closer a pixel is to the centroid of a bin, the less it contributes to neighbouring spatial bins. This is reflected by assigning a Gaussian weight to each bin, the sum of all weights being 1.
+First of all, the patch is subdivided into cells arranged according to a DAISY configuration \cite{Tola08,best_daisy}. See figure... (TODO: include figure for illustration.)
+
+The binning is overlapping, i.e.\ each pixel contributes to more than one bin.  The closer a pixel is to the centroid of a bin, the less it contributes to neighbouring spatial bins. This is reflected by assigning a Gaussian weight to each bin, the sum of all weights being 1.
 
 \subsection{Gradient histogram binning}
 
@@ -20,7 +24,7 @@ The image gradients with respect to x and y are computed with [-1 0 -1] as filte
 
 So far we have an uncompressed histogram of gradients. The next step is to compress the descriptor while aiming for fast and accurate matching.
 
-The original paper on CHoG used Huffman tree coding for quantization [TODO: reference]. The authors have since improved the descriptor by switching to type coding which has better time complexity [TODO: reference]. Entropy Constrained Vector Quantization is optimal in terms of rate and distortion, but unpractical in the context of mobile search: it is more complex and requires storing codebooks on the device. [TODO: reference]
+The original paper on CHoG \cite{chog2009} used Huffman tree coding for quantization. The authors have since improved the descriptor by switching to type coding which has better time complexity \cite{chog2011}. Entropy Constrained Vector Quantization is optimal in terms of rate and distortion, but unpractical in the context of mobile search: it is more complex and requires storing codebooks on the device. \cite{chog2011}
 
 [TODO: expand about type quantization]
 
