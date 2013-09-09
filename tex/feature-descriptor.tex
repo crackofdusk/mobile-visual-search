@@ -138,14 +138,38 @@ So far we have an uncompressed histogram of gradients. The next step is to compr
 
 The original paper on CHoG \cite{chog2009} used Huffman tree coding for quantization. The authors have since improved the descriptor by switching to type coding which has better time complexity \cite{chog2011}. Entropy Constrained Vector Quantization is optimal in terms of rate and distortion, but unpractical in the context of mobile search: it is more complex and requires storing codebooks on the device \cite{chog2011}.
 
-\subsubsection{Latices}
+\subsubsection{Lattices}
 
-\subsubsection{Type coding}
-\label{sec:type_coding}
+An n-dimensional lattice $\Lambda$ is the set of vectors
+\begin{equation}
+    \mathbf{x} = u_1 \mathbf{a}_1 + \cdots + u_n \mathbf{a}_n,
+\end{equation}
+where $u_1, \ldots, u_n$ are integers and $a_1, \ldots, a_n$ are linearly independent vectors in $\mathbb{R}^n$ \cite{ConwayS82a}.
+
+$A_n$ ($n \geq 1$) is the n-dimensional lattice formed by $(x_0, \ldots, x_n)$ with integer coordinates that sum to zero.
+
+\subsubsection{Types (empirical probability distributions)}
+\label{sec:types}
+
+Let $\mathcal{X} = \{a_1,a_2,\ldots,a_{\left|\mathcal{X}\right|}\}$ be an alphabet of symbols and the set of all probability distributions on $\mathcal{X}$ be $\mathcal{P}(\mathcal{X})$.
+
+The type of a sequence $\mathbf{x} = (x_1, x_2 \ldots, x_n) \in \mathcal{X}^n$ is the probability distribution $P_{\mathbf{x}} \in \mathcal{P}(\mathcal{X})$, such that $P_{\mathbf{x}}(a)$ is the relative frequency of the symbol $a$ in the sequence $x$ \cite{methodoftypes}.
+
+In other words \cite{infotheory}, $P_{\mathbf{x}}(a) = \frac{N(a|\mathbf{x})}{n}$ for all $a \in \mathcal{X}$, where $N(x|\mathbf{x})$ is the number of occurrences of a in $x \in \mathcal{X}^n$.
 
 \subsubsection{Quantization}
 
-Chandrasekhar et al.\ \cite{chog2011} use the following algorithm to quantize a distribution $P$ to the nearest type in $Q_n$ ($Q_n$ is as described in section~\ref{sec:type_coding})
+The codebook $Q$ used to quantize the histogram needs to have a structure that allows it to be constructed on the fly.
+
+Chandrasekhar et al.\ \cite{chog2011} propose the following codebook:
+
+\begin{equation}
+    Q_n = \{ [q_1,\ldots,q_m] \in \mathbb{Q}^m | \forall i: q_i = \frac{k_i}{n}, k_i \geq 0, \sum_i k_i = n \}
+\end{equation}
+
+It is important to note that an element $q \in Q_n$ fits the definition of a type given in section~\ref{sec:types}.
+
+Chandrasekhar et al.\ \cite{chog2011} use the following algorithm to quantize a distribution $P$ to the nearest type $q = [\frac{k_1}{n},\ldots,\frac{k_m}{n}]$ in $Q_n$:
 \begin{enumerate}
 
 \item With $i=1,\ldots,m$, compute: \begin{displaymath}
@@ -211,3 +235,6 @@ The generalized formula \cite{chog2011} is:
 \xi(k_1, \ldots, k_m) = \sum_{j=1}^{m-2} \sum_{i=0}^{k_j - 1} {n-i-\sum_{l=1}^{j-1}k_l+m-j-1 \choose m-j-1} + k_{n-1}
 \end{equation}
 
+\subsection{Feature matching}
+
+A method called compressed domain matching [TODO: reference] is used to achieve fast matching. The distances between different distributions are computed and stored in a lookup table. The quantized histogram indexes serves as indexes to this lookup table. Thus, no decompression is required in order to compare two descriptors.
