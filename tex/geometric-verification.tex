@@ -1,1 +1,15 @@
 \section{Geometric verification}
+\label{sec:geometric_verification}
+
+After finding possible matchtes for the input image in the database in the feature matching step of the retrieval, it is important to confirm that the locations of the features are geometrically consistent between the input and the result. This is due to the fact that, while depicting the same scene or object, the two images might differ in viewpoint.
+
+\subsection{Location coding}
+
+Location coding is the concept of representating the positions of the extracted features in the input image. It is done after the feature descriptors have been computed, but it is presented here, because the location information is used in the geometric verification step in the image retrieval process.
+
+An efficient method of location coding is to build then compress a histogram of the locations, as presented by Tsai et al.\ in \cite{tsai2010fast}. The authors consider a histogram composed of two pieces which are coded separately: a histogram map and a histogram count.
+
+The histogram map is a subdivision of the image into blocks with binary values. A value of 1 indicates there are features within the boundaries of the block, a value of 0 denotes the lack of features in that area.
+
+The histogram count is the count of features in non emply blocks.
+

@@ -1,7 +1,11 @@
 \section{Points of interest detection}
+\label{sec:feature_detection}
 
-% TODO: move to the introduction?
 In this section, the term \emph{training image} refers to the reference image to which a \emph{test image} can be compared. The training image is stored in the search database, whereas the test image is the image one is trying to match against the images in the database.
+
+There are several ways of matching a test image to training images. A naive method is to compare the test image against each training image, pixel by pixel. In practice this is a very bad method for multiples reasons: comparing an image to a large database of images takes a lot of time and there is no guarantee that images of the same object will be exactly the same. They will likely differ in viewpoint (perspective, orientation, distance, etc.) and illumination.
+
+A better method is to use distinctive elements of the image as comparison points. These elements can be edges, corners, blobs and are called features. The following subsections describe they can be efficiently isolated from an image.
 
 \subsection{Scale invariance and scale space}
 \label{sec:scale_space}

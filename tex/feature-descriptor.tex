@@ -1,4 +1,5 @@
 \section{Compressed Histogram of Gradients descriptor}
+\label{sec:feature_descriptor}
 
 \subsection{Patch extraction and normalization}
 
@@ -236,6 +237,3 @@ The generalized formula \cite{chog2011} is:
 \xi(k_1, \ldots, k_m) = \sum_{j=1}^{m-2} \sum_{i=0}^{k_j - 1} {n-i-\sum_{l=1}^{j-1}k_l+m-j-1 \choose m-j-1} + k_{n-1}
 \end{equation}
 
-\subsection{Feature matching}
-
-A method called compressed domain matching [TODO: reference] is used to achieve fast matching. The distances between different distributions are computed and stored in a lookup table. The quantized histogram indexes serves as indexes to this lookup table. Thus, no decompression is required in order to compare two descriptors.
