@@ -1,3 +1,33 @@
 \section{Feature matching}
 \label{sec:feature_matching}
 
+\subsection{k-means clustering}
+
+k-means clustering is the partitioning of $n$ vectors $x_1, x_2, \ldots, x_n \in \mathbb{R}^m$ into $k$ sets $(k \leq n)$ $S = \{S_1,S_2,\ldots,S_k\}$ which minimizes
+\begin{equation}
+\sum_{i=1}^k \sum_{x_j \in S_i} \|x_j - \bar{x}_{S_i}\|^2
+\end{equation}
+where $\bar{x}_{S_i}$ is the centroid or mean of cell $S_i$. \cite{kmeans}
+
+\subsection{Vocabulary trees}
+
+In \cite{nister2006scalable}, Nistér et al.\ give the following algorithm for building a hierarchical quantization scheme called a vocabulary tree. Run the k-means clustering procedure on a representative set of descriptor vectors. Repeat in each cell, recursively until the desired number of levels $L$ is achieved. Each inner node has $k$ children. With this structure, the descriptors are the leaves of the tree. It makes search efficient, because at each level, the query descriptor needs to be compared to only $k$ centroids. This makes a total of $kL$ comparisons to find a group of candidate descriptors for a query descriptor.
+
+An inverted index is stored at each leaf. This index contains a list of IDs of images in which the descriptor in that leaf appears and a list of counts of those occurrences. Using the inverted index, a scoring system can be put in place in order to select candidate images for the query image.
+
+Chen et al.\ \cite{chen2010inverted} explain the algorithm for similarity scoring as follows. Let $\{i_{k_1}, i_{k_2}, \ldots, i_{k_{N_k}}\}$ be the sorted list of the $N_k$ image IDs for node $k$ from a total of $N$ images in the database and $\{c_{k_1}, c_{k_2}, \ldots, c_{k_{N_k}}\}$ the list of the corresponding occurrence counts. Let $q_k$ be the number of visits to node $k$ from query descriptors in a certain query. Finally, let $s: \mathbb{Z}_+ \to \mathbb{R}_+$ be such that $s(i)$ defines the similarity score between the query image and the database image with index $i$.
+
+Before the matching process starts, all image scores are initialized to 0. When all descriptors have been compared, the score for image ID $i_{k_j}$ (the $j$-th image ID at node $k$) is incremented by 
+\begin{equation}
+\frac{w_k^2 c_{k_j} q_k}{\sum_{i_{k_j}} \sum_q},
+\end{equation}
+where
+\begin{itemize}
+\item $w_k = \log \frac{N}{N_k}$ is a penalty weight for images which are visited often,
+\item $\sum_{i_{k_j}} = \sum_{l=1}^L w_l$ ($L$ is the total number of levels, as defined above) is a normalization for image $i_{k_j}$ and
+\item $\sum_q = \sum_{l=1}^L w_l$ is a normalization for the query image.
+\end{itemize}
+
+% STFU for now, maybe include if I have time
+%\subsection{Inverted index compression}
+%\cite{chen2010inverted}

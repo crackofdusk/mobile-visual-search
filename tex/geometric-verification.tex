@@ -15,11 +15,13 @@ The histogram count is the count of features in non emply blocks.
 
 \subsection{Ratio test}
 
-It can happen that a feature detected in the query image is not in the database, because it wasn't detected during the training. Lowe \cite{Lowe04distinctiveimage} provides a method for eliminating those features, called the ratio test.
+It can happen that a feature detected in the query image is not in the database, because it was not detected during the training. Lowe \cite{Lowe04distinctiveimage} provides a method for eliminating those features, called the ratio test.
 
-From the candidate features, let the nearest neighbour to the query feature be the one which descriptor vector is at minimum distance from the query feature's descriptor vector, noted here $d_1$. Let the second-closest neighbour be the closest neighbour (again using Eucledian distance) that comes from a different object, its distance from the the query feature noted $d_2$. Let r be the ratio $r = \frac{d1}{d2}$.
+From the candidate features, let the nearest neighbour to the query feature be the one which descriptor vector is at minimum distance from the query feature's descriptor vector, noted here $d_1$. Let the second-closest neighbour be the closest neighbour (again using Eucledian distance) that comes from a different object, its distance from the the query feature noted $d_2$. Let $r$ be the ratio $r = \frac{d1}{d2}$.
 
-From empirical testing, Lowe has concluded that when the nearest neighbour is a correct match $r$ is distinctly lower than when it is not a correct match. Thus, one can set a threshold ratio and reject matches for which the ratio of distances is larger than the threshold.
+From empirical testing \cite{Lowe04distinctiveimage}, Lowe has concluded that when the nearest neighbour is a correct match $r$ is distinctly lower than when it is not a correct match. Thus, one can set a threshold ratio and reject matches for which the ratio of distances is larger than the threshold.
 
 
 \subsection{Random Sample Consensus}
+
+
