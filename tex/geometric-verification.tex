@@ -24,4 +24,44 @@ From empirical testing \cite{Lowe04distinctiveimage}, Lowe has concluded that wh
 
 \subsection{Random Sample Consensus}
 
+Random Sample Consensus or RANSAC \cite{fischler1981random} is a way of estimating the parameteres of a model by random sampling. It works on the premise that the data set it works with contains points whose distribution can be explained by a set of parameters (these points are called \emph{inliers}) and there are also points which do not fit any model (\emph{outliers}). The algorithm works roughly in the following way.
 
+For a model that needs a minimum of $n$ points to construct its free parameters, select $n$ points at random from the data set. Determine the model parameters using the selected points and compute the set of inliers of that model, i.e. the points that are within a certain error tolerance according to the created model. The model is good enough if the set of inliers is sufficiently large. If it is not, create a new model with a new random subset of the data points and try again. After a predetermined maximum number of tries, select the hypothesis with the largest set of inliers and compute the model parameters using only the inliers.
+
+RANSAC can be used to rank the candidate images by order of consistency with the query image. The ranking critierion is the number of inliers in the estimation of a 2D affine transformation between the query image and the candidate image \cite{ransac_gcc}:
+\begin{equation}
+\begin{bmatrix}
+u_i \\ v_i
+\end{bmatrix}
+=
+\begin{bmatrix}
+m_1 & m_2 \\
+m_3 & m_4
+\end{bmatrix}
+\begin{bmatrix}
+x_i \\ y_i
+\end{bmatrix}
++
+\begin{bmatrix}
+t_1 \\ t_2
+\end{bmatrix},
+\end{equation}
+where $(x_i,y_i)$ is the location of a query feature and $(u_i,v_i)$ is the location of a candidate feature. The free parameters $m_1,m_2,m_3,m_4$ account for rotation and scaling and $t_1,t_2$ for translation. RANSAC can estimate a solution to the system with 6 unkowns:
+\begin{equation}
+\begin{bmatrix}
+ & & \cdots \\
+x_i & y_i & 0 & 0 & 1 & 0 \\
+0 & 0 & x_i & y_i & 0 & 1 \\
+ & & \cdots \\
+\end{bmatrix}
+\begin{bmatrix}
+m_1 \\ m_2 \\ m_3 \\ m_4 \\ t_1 \\ t_2
+\end{bmatrix}
+=
+\begin{bmatrix}
+\vdots \\
+u_i \\
+v_i \\
+\vdots
+\end{bmatrix}
+\end{equation}
