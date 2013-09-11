@@ -1,3 +1,11 @@
 \section{Conclusion}
 
-The report discussed state-of-the-art methodology of visual information retrieval.
+The report discussed state-of-the-art methodology of visual information retrieval. Every section presents techniques which ensure the level of efficiency desirable for mobile visual search.
+
+The Fast Hessian feature detector uses approximations to simplify computations and thus make them fast even on devices with low processing power.
+
+The Compressed Histogram of Gradients feature descriptor is both memory and bandwidth friendly: it does not require storing a codebook on the device which computes the descriptor and it produces low bitrate descriptors which is a big gain considering the lattency challenges of mobile devices.
+
+The feature matching step yields match candidates with a small number of operations thanks to, on the one hand, the hierarchical nature of the vocabulary tree and, on the other hand, the inverted indexes attached to the vocabulary tree.
+
+Finally, the fast filtering of candidate images by means of geometric re-ranking and then ratio tests ensures that only a small number of candidates will be left for consistency checking by Random Sample Consensus. Again, this reduces the server response time.

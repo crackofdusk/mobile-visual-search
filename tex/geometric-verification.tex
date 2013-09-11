@@ -13,6 +13,24 @@ The histogram map is a subdivision of the image into blocks with binary values. 
 
 The histogram count is the count of features in non emply blocks.
 
+\subsection{Geometric re-ranking}
+
+Tsai et al.\ propose a geometric re-ranking scheme \cite{tsai2010fast} to be used before the geometric verification step in order to improve the accuracy of retrieval. The idea is to apply geometric similarity scores to the candidate images and select only the best ranked images for geometric verification. This is worthwile, because the re-ranking step is significantly faster than the geometric verification step. The authors of \cite{tsai2010fast} evalute geometric similarity scoring based on location, orientation and scale. They retain the location-based ranking for performance reasons.
+
+First, they create a list $M$ of pairs indexes of features from $F_q = \{ l_{q,i}, d_{q,i}\}$ the set of query features characterized by their location $l_q$ and descriptor $d_q$ and $F_d = \{ l_{d,i}, d_{d,i}\}$ the set of database features. A pair of indexes $(m,n)$ is in $M$ if and only if $d_{q,m}$ is the only query descriptor that has visited a node in the vocabulary tree and $d_{d,n}$ is the only candidate descriptor which has visited the same node.
+
+Then they use the location information of the features in the list to create a set $S$ of distance ratios:
+\begin{equation}
+    S = \left\{ \log \left( \frac{dist(l_{q,i},l_{d,m})}{dist(l_{d,j},l_{d,n})} \right) \big| \; (i,j),(m,n) \in M \right\},
+\end{equation}
+where $dist(\cdot,\cdot)$ is the Euclidean distance.
+
+The score is given by:
+\begin{equation}
+    Score = \underset{\alpha}{\max} \sum_{z \in S} I\left( \frac{\alpha}{c} \leq z < \frac{\alpha + 1}{c} \right),
+\end{equation}
+where, $I(\cdot)$ is the indicator function, $c$ is a tolerance factor and $\frac{\alpha}{c}$ is the scale ratio difference \cite{tsai2010fast}.
+
 \subsection{Ratio test}
 
 It can happen that a feature detected in the query image is not in the database, because it was not detected during the training. Lowe \cite{Lowe04distinctiveimage} provides a method for eliminating those features, called the ratio test.
@@ -65,21 +83,3 @@ v_i \\
 \vdots
 \end{bmatrix}
 \end{equation}
-
-\subsection{Geometric re-ranking}
-
-Tsai et al.\ propose a geometric re-ranking scheme \cite{tsai2010fast} to be used before the geometric verification step in order to improve the accuracy of retrieval. The idea is to apply geometric similarity scores to the candidate images and select only the best ranked images for geometric verification. This is worthwile, because the re-ranking step is significantly faster than the geometric verification step. The authors of \cite{tsai2010fast} evalute geometric similarity scoring based on location, orientation and scale. They retain the location-based ranking for performance reasons.
-
-First, they create a list $M$ of pairs indexes of features from $F_q = \{ l_{q,i}, d_{q,i}\}$ the set of query features characterized by their location $l_q$ and descriptor $d_q$ and $F_d = \{ l_{d,i}, d_{d,i}\}$ the set of database features. A pair of indexes $(m,n)$ is in $M$ if and only if $d_{q,m}$ is the only query descriptor that has visited a node in the vocabulary tree and $d_{d,n}$ is the only candidate descriptor which has visited the same node.
-
-Then they use the location information of the features in the list to create a set $S$ of distance ratios:
-\begin{equation}
-    S = \left\{ \log \left( \frac{dist(l_{q,i},l_{d,m})}{dist(l_{d,j},l_{d,n})} \right) \big| \; (i,j),(m,n) \in M \right\},
-\end{equation}
-where $dist(\cdot,\cdot)$ is the Euclidean distance.
-
-The score is given by:
-\begin{equation}
-    Score = \underset{\alpha}{\max} \sum_{z \in S} I\left( \frac{\alpha}{c} \leq z < \frac{\alpha + 1}{c} \right),
-\end{equation}
-where, $I(\cdot)$ is the indicator function, $c$ is a tolerance factor and $\frac{\alpha}{c}$ is the scale ratio difference \cite{tsai2010fast}.
