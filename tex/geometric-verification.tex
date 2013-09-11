@@ -7,7 +7,7 @@ After finding possible matchtes for the input image in the database in the featu
 
 Location coding is the concept of representating the positions of the extracted features in the input image. It is done after the feature descriptors have been computed, but it is presented here, because the location information is used in the geometric verification step in the image retrieval process.
 
-An efficient method of location coding is to build then compress a histogram of the locations, as presented by Tsai et al.\ in \cite{tsai2010fast}. The authors consider a histogram composed of two pieces which are coded separately: a histogram map and a histogram count.
+An efficient method of location coding is to build then compress a histogram of the locations, as presented by Chen et al.\ in \cite{chen2010inverted}. The authors consider a histogram composed of two pieces which are coded separately: a histogram map and a histogram count.
 
 The histogram map is a subdivision of the image into blocks with binary values. A value of 1 indicates there are features within the boundaries of the block, a value of 0 denotes the lack of features in that area.
 
@@ -65,3 +65,21 @@ v_i \\
 \vdots
 \end{bmatrix}
 \end{equation}
+
+\subsection{Geometric re-ranking}
+
+Tsai et al.\ propose a geometric re-ranking scheme \cite{tsai2010fast} to be used before the geometric verification step in order to improve the accuracy of retrieval. The idea is to apply geometric similarity scores to the candidate images and select only the best ranked images for geometric verification. This is worthwile, because the re-ranking step is significantly faster than the geometric verification step. The authors of \cite{tsai2010fast} evalute geometric similarity scoring based on location, orientation and scale. They retain the location-based ranking for performance reasons.
+
+First, they create a list $M$ of pairs indexes of features from $F_q = \{ l_{q,i}, d_{q,i}\}$ the set of query features characterized by their location $l_q$ and descriptor $d_q$ and $F_d = \{ l_{d,i}, d_{d,i}\}$ the set of database features. A pair of indexes $(m,n)$ is in $M$ if and only if $d_{q,m}$ is the only query descriptor that has visited a node in the vocabulary tree and $d_{d,n}$ is the only candidate descriptor which has visited the same node.
+
+Then they use the location information of the features in the list to create a set $S$ of distance ratios:
+\begin{equation}
+    S = \left\{ \log \left( \frac{dist(l_{q,i},l_{d,m})}{dist(l_{d,j},l_{d,n})} \right) \big| \; (i,j),(m,n) \in M \right\},
+\end{equation}
+where $dist(\cdot,\cdot)$ is the Euclidean distance.
+
+The score is given by:
+\begin{equation}
+    Score = \underset{\alpha}{\max} \sum_{z \in S} I\left( \frac{\alpha}{c} \leq z < \frac{\alpha + 1}{c} \right),
+\end{equation}
+where, $I(\cdot)$ is the indicator function, $c$ is a tolerance factor and $\frac{\alpha}{c}$ is the scale ratio difference.
